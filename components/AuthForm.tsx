@@ -21,15 +21,29 @@ const formSchema = z.object({
   username: z.string().min(2).max(50),
 });
 type FormType = "sign-in" | "sign-up";
+const authFormTypes = (formType: FormType) => {
+  return z.object({
+    email: z
+      .string()
+      .email("Email is required")
+      .min(1,"Invalid email address"),
+    fullname:
+      formType === "sign-up"
+        ? z.string().min(2).max(50)
+        : z.string().optional(),
+  });
+};
 
 const AuthForm = ({ type }: { type: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('')
-  // 1. Define your form.
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const formSchema = authFormTypes(type);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      fullname: "",
+      email: "",
     },
   });
 
@@ -48,7 +62,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           {type === "sign-up" && (
             <FormField
               control={form.control}
-              name="username"
+              name="fullname"
               render={({ field }) => (
                 <FormItem>
                   <div className="shad-form-item">
@@ -89,7 +103,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
             )}
           />
 
-          <Button className="form-submit-button" type="submit" disabled={isLoading}>
+          <Button
+            className="form-submit-button"
+            type="submit"
+            disabled={isLoading}
+          >
             {type === "sign-in" ? "Sign In" : "Sign Up"}
             {isLoading && (
               <img
@@ -101,15 +119,20 @@ const AuthForm = ({ type }: { type: FormType }) => {
               />
             )}
           </Button>
-          {errorMessage && (
-            <p className="error-message">*{errorMessage}</p>
-          )}
+          {errorMessage && <p className="error-message">*{errorMessage}</p>}
           <div className="body-2 flex justify-center">
             <p className="text-light-100">
-                {type === "sign-in" ? "Don't have an account?" : "Already have an account?"}{" "}
+              {type === "sign-in"
+                ? "Don't have an account?"
+                : "Already have an account?"}{" "}
             </p>
-            <Link href={type === 'sign-in'? '/sign-up':'/sign-in'} className="ml-1 font-medium text-brand">{" "}{type === 'sign-in'?"Sign Up":"Sing In"}</Link>
-
+            <Link
+              href={type === "sign-in" ? "/sign-up" : "/sign-in"}
+              className="ml-1 font-medium text-brand"
+            >
+              {" "}
+              {type === "sign-in" ? "Sign Up" : "Sing In"}
+            </Link>
           </div>
         </form>
       </Form>
