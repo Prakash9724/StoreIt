@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import Link from "next/link";
 import { createAccount } from "@/lib/actions/user.actions";
+import OTPModel from "./OTPModel";
 
 const formSchema = z.object({
   username: z.string().min(2).max(50),
@@ -155,6 +156,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
       </Form>
 
       {/* OTP Verification */}
+      {accountId && (
+        <OTPModel email = {form.getValues('email')} accountId ={accountId} />
+      )}
     </>
   );
 };
