@@ -1,11 +1,12 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { createAdminClient } from "../appwrite";
+import { createAdminClient, createSessionClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { error } from "console";
 import { parseStringify } from "../utils";
 import { cookies } from "next/headers";
+import { avatarPlaceholderUrl } from "@/constants";
 const getUserByEmail = async (email: string) => {
   const { databases } = await createAdminClient();
   const result = await databases.listDocuments(
@@ -50,8 +51,7 @@ export const createAccount = async ({
       {
         fullName,
         email,
-        avatar:
-          "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
+        avatar: avatarPlaceholderUrl,
         accountId,
       }
     );
@@ -60,24 +60,41 @@ export const createAccount = async ({
   return parseStringify({ accountId });
 };
 
-export const verifySecret = async ({accountId,password}:{accountId:string,password:string})=>{
-    
-    try {
-        const { account } = await createAdminClient();
-        
-        const session = await account.createSession(accountId,password);
+export const verifySecret = async ({
+  accountId,
+  password,
+}: {
+  accountId: string;
+  password: string;
+}) => {
+  try {
+    const { account } = await createAdminClient();
 
-        (await cookies()).set('appwrite-session',session.secret,{
-            path: '/',
-            httpOnly: true,
-            sameSite:'strict',
-            secure:true
-        })
+    const session = await account.createSession(accountId, password);
 
-        return parseStringify({sessionId:session.$id})
+    (await cookies()).set("appwrite-session", session.secret, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+    });
 
-    } catch (error) {
-        handleError(error,"Failed to verify secret");
-    }
-    
-}
+    return parseStringify({ sessionId: session.$id });
+  } catch (error) {
+    handleError(error, "Failed to verify secret");
+  }
+};
+
+export const getCurrentUser = async () => {
+  const { databases, account } = await createSessionClient();
+  const result = await account.get();
+
+  const user = await databases.listDocuments(
+    appwriteConfig.databaseId,
+    appwriteConfig.usersCollectionId,
+    [Query.equal("accountId", result.$id)]
+  );
+
+  if (user.total <= 0) return null;
+  return parseStringify(user.documents[0]);
+};
