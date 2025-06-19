@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -16,6 +14,7 @@ import { navItems } from "@/constants";
 import { cn } from "@/lib/utils";
 import FileUploader from "./FileUploader";
 import { signOutUser } from "@/lib/actions/user.actions";
+import Image from "next/image";
 interface Props {
   ownerId: string;
   accountId: string;
@@ -43,14 +42,14 @@ const MobileNavigation = ({
       />
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>
-          <img
+          <Image
             src="/assets/icons/menu.svg"
             alt="search"
             height={30}
             width={30}
           />
         </SheetTrigger>
-        <SheetContent className="shad-sheet h-screen px-3">
+        <SheetContent className="shad-sheet h-screen px-3 bg-white">
           <SheetTitle>
             <div className="header-user">
               <img
@@ -79,7 +78,7 @@ const MobileNavigation = ({
                       pathname === url && "shad-active"
                     )}
                   >
-                    <img
+                    <Image
                       src={icon}
                       alt={name}
                       width={24}
@@ -99,18 +98,17 @@ const MobileNavigation = ({
           <Separator className="my-5 bg-light-200/20" />
 
           <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader/>
+            <FileUploader ownerId={ownerId} accountId={accountId} />
             <button
               type="submit"
               className="mobile-sign-out-button"
-              onClick={async() => await signOutUser()}
+              onClick={async () => await signOutUser()}
             >
               <img
                 src="/assets/icons/logout.svg"
                 alt="logo"
                 width={24}
                 height={24}
-           
               />
               <p>Logout</p>
             </button>
