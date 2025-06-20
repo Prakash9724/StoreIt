@@ -16,14 +16,14 @@ import FileUploader from "./FileUploader";
 import { signOutUser } from "@/lib/actions/user.actions";
 import Image from "next/image";
 interface Props {
-  ownerId: string;
+  $id: string;
   accountId: string;
   fullName: string;
   avatar: string;
   email: string;
 }
 const MobileNavigation = ({
-  ownerId,
+  $id:ownerId,
   accountId,
   fullName,
   avatar,

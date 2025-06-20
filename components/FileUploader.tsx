@@ -4,6 +4,7 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import { toast } from "sonner";
 import {
   cn,
   convertFileSize,
@@ -11,6 +12,10 @@ import {
   getFileType,
 } from "@/lib/utils";
 import Thumbnail from "./Thumbnail";
+import { MAX_FILE_SIZE } from "@/constants";
+import { useToast } from "@/hooks/use-toast";
+import { uploadFile } from "@/lib/actions/file.action";
+import { usePathname } from "next/navigation";
 
 interface Props {
   ownerId: string;
@@ -18,12 +23,43 @@ interface Props {
   className?: string;
 }
 const FileUploader = ({ ownerId, accountId, className }: Props) => {
+  const path = usePathname();
+  const { toast } = useToast();
   const [files, setFiles] = useState<File[]>([]);
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     // Do something with the files
     setFiles(acceptedFiles);
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+    const uploadPromises = acceptedFiles.map(async (file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+
+        return toast({
+          description: (
+            <p className="body-2 text-white">
+              <span className="font-semibold">{file.name}</span>
+              is too large. Max file size is 50MB.
+            </p>
+          ),
+          className: "error-toast",
+        });
+      }
+
+      return uploadFile({ file, ownerId, accountId, path }).then(
+        (uploadFile) => {
+          if (uploadFile) {
+            setFiles((prevFiles) =>
+              prevFiles.filter((f) => f.name !== file.name)
+            );
+          };
+        },
+      );
+    });
+
+    await Promise.all(uploadPromises);
+
+  }, [ownerId,accountId,path]);
+  const { getRootProps, getInputProps} = useDropzone({ onDrop });
 
   const handleRemoveFile = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>,
@@ -81,18 +117,18 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                   width={24}
                   height={24}
                   className="cursor-pointer"
-                  onClick={(e) => handleRemoveFile(e,file.name)}
+                  onClick={(e) => handleRemoveFile(e, file.name)}
                 />
               </li>
             );
           })}
         </ul>
       )}
-      {isDragActive ? (
+      {/* {isDragActive ? (
         <p>Drop the files here ...</p>
       ) : (
         <p>Drag 'n' drop some files here, or click to select files</p>
-      )}
+      )} */}
     </div>
   );
 };
