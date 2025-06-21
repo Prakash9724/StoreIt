@@ -23,12 +23,13 @@ import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import {
+  deleteFile,
+  renameFile,
+  updateFileUsers,
+} from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
-import { deleteFile, renameFile, updateFileUsers } from "@/lib/actions/file.action";
-import { FileDetails , ShareInput } from "./ActionModalContent";
-
-
+import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -87,7 +88,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     const { value, label } = action;
 
     return (
-      <DialogContent className="shad-dialog button bg-white">
+      <DialogContent className="shad-dialog button">
         <DialogHeader className="flex flex-col gap-3">
           <DialogTitle className="text-center text-light-100">
             {label}
@@ -148,7 +149,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
             height={34}
           />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-white">
+        <DropdownMenuContent>
           <DropdownMenuLabel className="max-w-[200px] truncate">
             {file.name}
           </DropdownMenuLabel>
