@@ -50,6 +50,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
     },
   });
 
+
+  
+
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
