@@ -2,13 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Models } from "node-appwrite";
 
-import ActionDropdown from "@/components/ActionDropdown";
 import { Chart } from "@/components/Chart";
 import { FormattedDateTime } from "@/components/FormattedDateTime";
 import { Thumbnail } from "@/components/Thumbnail";
 import { Separator } from "@/components/ui/separator";
 import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
 import { convertFileSize, getUsageSummary } from "@/lib/utils";
+import ActionDropdown from "@/components/ActionDropdown";
 
 const Dashboard = async () => {
   // Parallel requests
@@ -77,15 +77,15 @@ const Dashboard = async () => {
                   url={file.url}
                 />
 
-                <div className="recent-file-details">
-                  <div className="flex flex-col gap-1">
+                <div className="flex w-full justify-between  items-center xl:flex-row xl:justify-between">
+                  <div className="flex flex-col gap-1 max-w-[200px] md:max-w-[180px] lg:max-w-[180px] xl:max-w-[300px]">
                     <p className="recent-file-name">{file.name}</p>
                     <FormattedDateTime
                       date={file.$createdAt}
                       className="caption"
                     />
                   </div>
-                  <ActionDropdown file={file} />
+                  <ActionDropdown  file={file} />
                 </div>
               </Link>
             ))}
